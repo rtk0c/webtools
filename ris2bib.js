@@ -30,26 +30,11 @@ const RIS_FIELDS = {
   },
   'EP': (bib, value) => {
     bib.pages = bib.pages || {}
-    bib.pages.start = value
+    bib.pages.final = value
   },
   'L3': 'doi',
   'DO': 'doi',
   'UR': 'url',
-}
-
-/**
- * @param {string} s
- * @param {string} delim
- * @returns {string}
- */
-function trimStr(s, delim) {
-  let beg = 0
-  let end = s.length
-  while (beg < end && delim.indexOf(s[beg]) != -1)
-    ++beg
-  while (beg < end && delim.indexOf(s[end - 1]) != -1)
-    --end
-  return s.substring(beg, end)
 }
 
 /**
@@ -61,8 +46,8 @@ function parseRIS(ris) {
     const parts = line.split('-', 2)
     if (parts.length != 2)
       continue
-    const field = trimStr(parts[0], ' ')
-    const value = trimStr(parts[1], ' \n\r')
+    const field = parts[0].trim()
+    const value = parts[1].trim()
     const e = RIS_FIELDS[field]
     if (typeof e === 'string') {
       bib[e] = value
@@ -86,7 +71,9 @@ function stringifyBib(bib) {
     'author': optMultilineAuthor.checked
       ? v => v.join(`\n${indent.repeat(2)}and `)
       : v => v.join(' and '),
-    'pages': v => v.final ? `${v.start}--${v.final}` : v.start,
+    'pages': v => v.final
+      ? `${v.start}--${v.final}`
+      : v.start,
   }
 
   lines.push(`@article{${firstAuthor.toLowerCase()}${bib.year || ''},`)
