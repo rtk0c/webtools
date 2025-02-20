@@ -1,3 +1,6 @@
+const optIndent = document.getElementById('opt.indent')
+const optMultilineAuthor = document.getElementById('opt.multiline-author')
+
 /**
  * @type {{[key: string]: string | (bib, value: string) => void)}} RIS_FIELDS
  */
@@ -72,21 +75,23 @@ function parseRIS(ris) {
   return bib
 }
 
-const BIB_FIELDS = {
-  '_default': v => v,
-  'author': v => v.join(' and '),
-  'pages': v => v.final ? `${v.start}--${v.final}` : v.start,
-}
-
 function stringifyBib(bib) {
   let lines = []
   /** @type {string} */
   const firstAuthor = bib.author[0].split(',')[0].trim()
-  const indent = ' '.repeat(2)
+  const indent = ' '.repeat(parseInt(optIndent.value) || 2)
+
+  const bibFields = {
+    '_default': v => v,
+    'author': optMultilineAuthor.checked
+      ? v => v.join(`\n${indent.repeat(2)}and `)
+      : v => v.join(' and '),
+    'pages': v => v.final ? `${v.start}--${v.final}` : v.start,
+  }
 
   lines.push(`@article{${firstAuthor.toLowerCase()}${bib.year || ''},`)
   for (const [field, value] of Object.entries(bib)) {
-    const fn = BIB_FIELDS[field] || BIB_FIELDS._default
+    const fn = bibFields[field] || bibFields._default
     lines.push(`${indent}${field}={${fn(value)}},`)
   }
   lines.push('}')
@@ -94,9 +99,9 @@ function stringifyBib(bib) {
   return lines.join('\n')
 }
 
-let taRIS = document.getElementById('ris')
-let taBib = document.getElementById('bib')
-let convertBtn = document.getElementById('trigger')
+const taRIS = document.getElementById('ris')
+const taBib = document.getElementById('bib')
+const convertBtn = document.getElementById('trigger')
 convertBtn.addEventListener('click', () => {
   taBib.value = stringifyBib(parseRIS(taRIS.value))
 })
