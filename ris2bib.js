@@ -2,6 +2,8 @@ const optIndent = document.getElementById('opt.indent')
 const optMultilineAuthor = document.getElementById('opt.multiline-author')
 
 /**
+ * https://gris.readthedocs.io/en/latest/specification.html
+ *
  * @type {{[key: string]: string | (bib, value: string) => void)}} RIS_FIELDS
  */
 const RIS_FIELDS = {
@@ -13,11 +15,13 @@ const RIS_FIELDS = {
     }
   },
   'TI': 'title',
+  'T1': 'title', // primary title, but some systems lump titles here
   'JA': 'journal',
   'JO': 'journal',
   'VL': 'volume',
   'PB': 'publisher',
   'PY': 'year',
+  'N2': 'abstract',
   'DA': (bib, value) => {
     const [year, month, day] = value.split('/')
     bib.year = year
@@ -35,6 +39,10 @@ const RIS_FIELDS = {
   'L3': 'doi',
   'DO': 'doi',
   'UR': 'url',
+  'LK': 'url', // website link
+  // TODO parse full date? I've only seen year being put here in the wild so far
+  'Y1': 'year', // primary date
+  'Y2': 'urldate', // access date
 }
 
 /**
